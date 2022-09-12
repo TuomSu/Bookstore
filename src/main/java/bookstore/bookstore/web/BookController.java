@@ -41,15 +41,11 @@ public class BookController {
         return "redirect:../booklist";
     }     
     
-    //@RequestMapping(value = "/edit/{id}", method = RequestMethod.GET)
-    //public String editBook(@PathVariable("id") Long id, Model model) {
-    //	model.addAttribute("book", id);
-    //	return "editbook";
-    //}	
+    @RequestMapping(value = "/edit/{id}", method = RequestMethod.GET)
+    public String editBook(@PathVariable("id") Long id, Model model) {
+    	model.addAttribute("book", repository.findById(id));
+    	return "editbook";
+    }	
     
-    //@RequestMapping(value = "/saveEdit" , method = RequestMethod.POST)
-    //public String saveEdit(Book book){
-    //        repository.save(book);
-    //        return "redirect:booklist";
-    //}   
+     
 }
