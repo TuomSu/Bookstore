@@ -6,14 +6,24 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 
 @Entity
 public class Book {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
+	
+	@Size(min = 1, message = "min size is 1")
 	private String title, author, isbn;
+	
+	@Min(value = 1900, message = "min value is 1900")
+	@Max(value = 2022, message = "max value is 2024")
 	private int bookYear;
+	
+	@Min(value = 1, message = "min value is 1")
 	private double price;
 
 	@ManyToOne

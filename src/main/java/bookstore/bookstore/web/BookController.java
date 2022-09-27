@@ -12,6 +12,8 @@ import bookstore.bookstore.domain.Book;
 import bookstore.bookstore.domain.BookRepository;
 import bookstore.bookstore.domain.CategoryRepository;
 
+import javax.validation.Valid;
+import org.springframework.validation.BindingResult;
 
 @Controller
 public class BookController {
@@ -35,7 +37,11 @@ public class BookController {
     }     
     
     @RequestMapping(value = "/save" , method = RequestMethod.POST)
-    public String save(Book book){
+    public String save(@Valid Book book, BindingResult bindingResult, Model model) {
+		if (bindingResult.hasErrors()) {
+			System.out.println("Some error happened");
+			return "addbook";
+		}
         repository.save(book);
         return "redirect:booklist";
     }    
