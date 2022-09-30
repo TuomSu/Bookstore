@@ -3,42 +3,49 @@ package bookstore.bookstore;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
 import bookstore.bookstore.service.UserDetailServiceImpl;
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableWebSecurity
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
+public class WebSecurityConfig {
 	@Autowired
     private UserDetailServiceImpl userDetailsService;	
 	
-	@Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-        .authorizeRequests().antMatchers("/css/**").permitAll() 
-        .and()
-        .authorizeRequests().antMatchers("/h2-console").permitAll()
-        .and()
-        .authorizeRequests()
-          .anyRequest().authenticated()
-          .and()
-          .headers().frameOptions().disable().and()
-          .csrf().ignoringAntMatchers("/h2-console/**").and()
-      .formLogin()
-          .defaultSuccessUrl("/booklist", true)
-          .permitAll()
-          .and()
-      .logout()
-          .permitAll();
-    }
+	@Bean
+	public SecurityFilterChain configure(HttpSecurity http) throws Exception {
+		return http.authorizeRequests(auth -> {
+			// css folder is accessible for all
+			auth.antMatchers("/css/**").permitAll();
+			auth.antMatchers("/h2-console").permitAll();
+			// if user's role is ADMIN s/he has access to all pages "under" owners
+			auth.antMatchers("/addbook/**").hasAuthority("ADMIN");
+			auth.antMatchers("/editbook/**").hasAuthority("ADMIN");
+			// every http request will be authenticated
+			auth.anyRequest().authenticated();
+		})
+				// below configuration is demanded if you want to use h2-console
+				.headers().frameOptions().disable().and()
+				// and this one for h2-console
+				.csrf().ignoringAntMatchers("/h2-console/**").and()
+				// tells where to go after successful login
+				.formLogin().defaultSuccessUrl("/booklist", true).and()
+				// Logout is permitted for all users
+				.logout().permitAll().and()
+				// and finally build this
+				.httpBasic(Customizer.withDefaults()).build();
+	}
 	
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
