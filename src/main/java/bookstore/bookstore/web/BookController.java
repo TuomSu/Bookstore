@@ -41,6 +41,7 @@ public class BookController {
     @RequestMapping(value = "/save" , method = RequestMethod.POST)
     public String save(@Valid Book book, BindingResult bindingResult, Model model) {
 		if (bindingResult.hasErrors()) {
+			model.addAttribute("categories", crepository.findAll());
 			System.out.println("Some error happened");
 			return "addbook";
 		}

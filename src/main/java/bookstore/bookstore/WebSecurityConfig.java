@@ -25,9 +25,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
         http
         .authorizeRequests().antMatchers("/css/**").permitAll() 
         .and()
+        .authorizeRequests().antMatchers("/h2-console").permitAll()
+        .and()
         .authorizeRequests()
           .anyRequest().authenticated()
           .and()
+          .headers().frameOptions().disable().and()
+          .csrf().ignoringAntMatchers("/h2-console/**").and()
       .formLogin()
           .defaultSuccessUrl("/booklist", true)
           .permitAll()
